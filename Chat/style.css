@@ -1,0 +1,12 @@
+li {
+	line-height: 30px;
+}
+table, tr, td, th{
+	border-collapse: inherit;
+	border: 1px solid black;
+	padding: 5px;
+}
+table{
+	margin: 10px;
+	padding: 0;
+}
