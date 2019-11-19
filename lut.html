@@ -1,0 +1,57 @@
+<html>
+    <head>
+    </head>
+    <body>
+        <div style = "text-align:center">
+            <p>This image...</p>
+            <canvas id = "imageCanvas" width="640" height="480" style = "border:2px solid black"></canvas>
+        </div>
+        <div style = "text-align:center">
+            <p>...with this lookup table...</p>
+            <canvas id="lutCanvas" width="512" height="512" style = "border:2px solid black"></canvas>
+        </div>
+        <div style = "text-align:center">
+            <p>... gives this result!</p>
+            <canvas id="resultCanvas" width="640" height="480" style = "border:2px solid black"></canvas>
+        </div>
+        <script>
+            var imagesLoaded = 0;
+
+            function URLToCanvas(url, id){
+                var theCanvas = document.getElementById(id);
+                var context = theCanvas.getContext("2d");
+                var img = new Image;
+                img.src = url;
+                img.onload = function(){
+                    context.drawImage(img, 0, 0);
+                    imagesLoaded ++;
+                    if(imagesLoaded == 2){
+                        applyLUT("imageCanvas", "lutCanvas", "resultCanvas");
+                    }
+                }
+            }
+
+            URLToCanvas("car.png", "imageCanvas");
+            URLToCanvas("lut.png", "lutCanvas");
+
+            function applyLUT(imageID, lutID, resultID) {
+                var imageContext = document.getElementById(imageID).getContext("2d");
+                var lutContext = document.getElementById(lutID).getContext("2d");
+                var imageData = imageContext.getImageData(0, 0, 640, 480);
+                var lutData = lutContext.getImageData(0, 0, 512, 512);
+                for (var i = 0; i < imageData.data.length; i += 4) {
+                    var r = Math.floor(imageData.data[i] / 4);
+                    var g = Math.floor(imageData.data[i + 1] / 4);
+                    var b = Math.floor(imageData.data[i + 2] / 4);
+                    var lutX = (b % 8) * 64 + r;
+                    var lutY = Math.floor(b / 8) * 64 + g;
+                    var lutIndex = (lutY * 512 + lutX) * 4;
+                    imageData.data[i] = lutData.data[lutIndex];
+                    imageData.data[i + 1] = lutData.data[lutIndex + 1];;
+                    imageData.data[i + 2] = lutData.data[lutIndex + 2];;
+                }
+                document.getElementById(resultID).getContext("2d").putImageData(imageData, 0, 0);
+            }
+        </script>
+    </body>
+</html>
